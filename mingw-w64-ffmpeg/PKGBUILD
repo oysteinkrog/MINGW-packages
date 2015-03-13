@@ -8,7 +8,7 @@ pkgrel=2
 pkgdesc="Complete and free Internet live audio and video broadcasting solution (mingw-w64)"
 arch=('any')
 url="http://ffmpeg.org/"
-license=('GPL')
+license=('LGPL')
 options=('staticlibs' 'strip')
 depends=(
         "${MINGW_PACKAGE_PREFIX}-bzip2"
@@ -27,7 +27,6 @@ depends=(
         "${MINGW_PACKAGE_PREFIX}-libvpx"
         "${MINGW_PACKAGE_PREFIX}-libwebp"
         "${MINGW_PACKAGE_PREFIX}-openal"
-        "${MINGW_PACKAGE_PREFIX}-opencore-amr"
         "${MINGW_PACKAGE_PREFIX}-openjpeg"
         "${MINGW_PACKAGE_PREFIX}-opus"
         "${MINGW_PACKAGE_PREFIX}-rtmpdump"
@@ -35,17 +34,19 @@ depends=(
         "${MINGW_PACKAGE_PREFIX}-SDL"
         "${MINGW_PACKAGE_PREFIX}-speex"
         "${MINGW_PACKAGE_PREFIX}-wavpack"
-        "${MINGW_PACKAGE_PREFIX}-x264"
-        "${MINGW_PACKAGE_PREFIX}-x265"
-        "${MINGW_PACKAGE_PREFIX}-xvidcore"
         "${MINGW_PACKAGE_PREFIX}-zlib"
         )
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config" "${MINGW_PACKAGE_PREFIX}-yasm")
-source=(http://ffmpeg.org/releases/${_realname}-${pkgver}.tar.bz2)
-md5sums=('5a312bebaf71688703644c18ef3f26e8')
+        #"${MINGW_PACKAGE_PREFIX}-x264"
+        #"${MINGW_PACKAGE_PREFIX}-x265"
+        #"${MINGW_PACKAGE_PREFIX}-xvidcore"
+        #"${MINGW_PACKAGE_PREFIX}-opencore-amr"
+
+makedepends=("yasm" "${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+source=("$_realname"::"git+http://github.com/InitialForce/FFmpeg#branch=release/2.8")
+sha1sums=('SKIP')
 
 prepare() {
-  cd "${srcdir}/${_realname}-${pkgver}"
+  cd "${srcdir}/${_realname}"
 }
 
 build() {
@@ -55,15 +56,15 @@ build() {
   #CPPFLAGS+=" --save-temps"
   #CFLAGS+=" --save-temps"
 
-  ../${_realname}-${pkgver}/configure \
+  ../${_realname}/configure \
     --prefix=${MINGW_PREFIX} \
     --target-os=mingw32 \
     --arch=${CARCH%%-*} \
     --disable-debug \
     --disable-static \
+    --enable-shared \
     --enable-avresample \
     --enable-dxva2 \
-    --enable-d3d11va \
     --enable-fontconfig \
     --enable-gnutls \
     --enable-gpl \
@@ -73,8 +74,6 @@ build() {
     --enable-libcelt \
     --enable-libdcadec \
     --enable-libfreetype \
-    --enable-libgsm \
-    --enable-libmodplug \
     --enable-libmp3lame \
     --enable-libopencore_amrnb \
     --enable-libopencore_amrwb \
@@ -82,33 +81,35 @@ build() {
     --enable-libopus \
     --enable-librtmp \
     --enable-libschroedinger \
-    --enable-libspeex \
-    --enable-libtheora \
-    --enable-libvorbis \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-libxvid \
     --enable-libvpx \
     --enable-openal \
     --enable-libwavpack \
     --enable-pic \
     --enable-postproc \
     --enable-runtime-cpudetect \
-    --enable-shared \
     --enable-static \
     --enable-swresample \
     --enable-version3 \
     --enable-zlib \
-    --disable-doc
+    --disable-doc \
+    --disable-sdl \
+    --build-suffix=-if
     #--enable-pthreads
+    #--enable-gpl \
+    #--enable-version3 \
+    #--enable-libx264 \
+    #--enable-libx265 \
+    #--enable-libxvid \
+    #--enable-libopencore_amrnb \
+    #--enable-libopencore_amrwb \
 
   make -j1
 }
 
-check() {
-  cd "${srcdir}/build-${MINGW_CHOST}"
-  make check
-}
+#check() {
+  #cd "${srcdir}/build-${MINGW_CHOST}"
+  #make check
+#}
 
 package() {
   cd "${srcdir}/build-${MINGW_CHOST}"
