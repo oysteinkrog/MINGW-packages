@@ -1,0 +1,40 @@
+_realname=mfx_dispatch
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=1.0
+pkgrel=1
+pkgdesc=""
+arch=('any')
+url="https://github.com/lu-zero/mfx_dispatch"
+license=('MIT')
+options=('staticlibs' 'strip')
+depends=("")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+source=("$_realname"::"git+http://github.com/lu-zero/mfx_dispatch")
+sha1sums=('SKIP')
+
+packagedir=${_realname}
+
+prepare() {
+  cd "${srcdir}/${packagedir}"
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MINGW_CHOST}"
+  cd "${srcdir}/build-${MINGW_CHOST}"
+
+  autoreconf -fiv ../${packagedir}
+
+  ../${packagedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --build=${CARCH%%-*} \
+    --disable-debug \
+    --disable-static \
+    --enable-shared
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
+  make DESTDIR="${pkgdir}" install
+}
