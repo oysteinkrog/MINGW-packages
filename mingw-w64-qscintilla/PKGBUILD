@@ -38,8 +38,7 @@ prepare() {
 
 build() {
   cd ${srcdir}/QScintilla-gpl-${pkgver}/Qt4Qt5
-  ${MINGW_PREFIX}/bin/qmake qscintilla.pro
-  make
+  ${MINGW_PREFIX}/bin/qmake qscintilla.pro TARGET=qscintilla2d CONFIG-=release CONFIG+=debug DEFINES-=QSCINTILLA_MAKE_DLL CONFIG += staticlib
 
   cd ../designer-Qt4Qt5
   QMAKEFEATURES=../Qt4Qt5/features ${MINGW_PREFIX}/bin/qmake designer.pro INCLUDEPATH+=../Qt4Qt5 QMAKE_LIBDIR+=../Qt4Qt5/release
