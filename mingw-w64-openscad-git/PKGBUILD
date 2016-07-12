@@ -5,7 +5,7 @@ pkgbase=mingw-w64-${_realname}-git
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=r5875.085167b
+pkgver=r5873.c7ab3f8
 pkgrel=1
 pkgdesc="The programmers solid 3D CAD modeller (mingw-w64)"
 arch=('any')
@@ -27,7 +27,8 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
              "make"
              "git")
 options=(!strip staticlibs !buildflags)
-source=("${_realname}"::"git+https://github.com/openscad/openscad.git")
+source=("${_realname}"::"git+https://github.com/oysteinkrog/openscad.git#branch=feature/LazyUnionModule")
+#source=("${_realname}"::"git+https://github.com/openscad/openscad.git")
 sha256sums=('SKIP')
 
 pkgver() {
@@ -47,7 +48,7 @@ build() {
   EIGENDIR=${MINGW_PREFIX} \
   GLEWDIR=${MINGW_PREFIX} \
   OPENCSGDIR=${MINGW_PREFIX} \
-  ${MINGW_PREFIX}/bin/qmake CONFIG+=release PREFIX="${pkgdir}${MINGW_PREFIX}"
+  ${MINGW_PREFIX}/bin/qmake CONFIG+=debug CONFIG+=experimental PREFIX="${pkgdir}${MINGW_PREFIX}"
 
   make -j1
   convert "icons/${_realname}.png" -resize 128x128\> "icons/${_realname}-128.png"
