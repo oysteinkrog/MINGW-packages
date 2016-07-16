@@ -65,7 +65,6 @@ build() {
     --enable-libcelt \
     --enable-libdcadec \
     --enable-libmp3lame \
-    --enable-libopenjpeg \
     --enable-libopus \
     --enable-libschroedinger \
     --enable-libvpx \
@@ -81,6 +80,7 @@ build() {
     --disable-doc \
     --disable-sdl \
     --build-suffix=-if
+    #--enable-libopenjpeg \
     #--enable-pthreads
     #--enable-gpl \
     #--enable-version3 \
