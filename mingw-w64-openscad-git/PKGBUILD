@@ -4,7 +4,7 @@ _realname=openscad
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=r5638.68e41af
+pkgver=r6018.fee7a72
 pkgrel=1
 pkgdesc="The programmers solid 3D CAD modeller (mingw-w64)"
 arch=('any')
@@ -19,6 +19,7 @@ depends=("${MINGW_PACKAGE_PREFIX}-qt5"
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
              "${MINGW_PACKAGE_PREFIX}-eigen3"
              "${MINGW_PACKAGE_PREFIX}-imagemagick"
+             "bison"
              "git")
 options=(!strip staticlibs !buildflags)
 source=("${_realname}"::"git+https://github.com/openscad/openscad.git")
