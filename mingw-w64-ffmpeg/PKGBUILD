@@ -53,6 +53,7 @@ build() {
 
   CC=${MINGW_PREFIX}/bin/gcc \
   CXX=${MINGW_PREFIX}/bin/g++ \
+
   ../${_realname}/configure \
     --prefix=${MINGW_PREFIX} \
     --target-os=mingw32 \
