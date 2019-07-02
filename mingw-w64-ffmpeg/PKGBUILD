@@ -75,13 +75,20 @@ build() {
     --enable-libvorbis \
     --enable-libvpx \
     --enable-libwebp \
+    --enable-amf \
+    --enable-ffnvcodec \
+    --enable-cuvid \
+    --enable-d3d11va \
+    --enable-dxva2 \
+    --enable-nvdec \
+    --enable-nvenc \
     --enable-openal \
     --enable-libwavpack \
     --enable-pic \
     --enable-postproc \
     --enable-runtime-cpudetect \
     --enable-shared \
-    --enable-static \
+    --disable-static \
     --enable-swresample \
     --enable-version3 \
     --enable-zlib \
@@ -104,9 +111,9 @@ package() {
   make DESTDIR="${pkgdir}" install
   mv "${pkgdir}${MINGW_PREFIX}"/bin/*.lib "${pkgdir}${MINGW_PREFIX}"/lib/
 
-  pushd "${pkgdir}${MINGW_PREFIX}"/bin/
-  ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep git-sdk-64 | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
-  popd
+  #pushd "${pkgdir}${MINGW_PREFIX}"/bin/
+  #ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep git-sdk-64 | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
+  #popd
 
   #find ${pkgdir}${MINGW_PREFIX}/bin -type f -name "*.exe" -exec objcopy --subsystem console {} \;
   rm -f ${pkgdir}${MINGW_PREFIX}/lib/*.def
