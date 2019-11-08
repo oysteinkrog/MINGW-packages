@@ -36,7 +36,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
              "${MINGW_PACKAGE_PREFIX}-ntldd-git"
              "${MINGW_PACKAGE_PREFIX}-nasm"
              "${MINGW_PACKAGE_PREFIX}-aom")
-source=("$_realname"::"git+https://github.com/InitialForce/FFmpeg#branch=release/4.1")
+source=("$_realname"::"git+https://github.com/InitialForce/FFmpeg#branch=release/4.2")
 sha1sums=('SKIP')
 
 prepare() {
