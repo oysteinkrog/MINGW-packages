@@ -10,7 +10,7 @@ arch=('any')
 url="https://github.com/FFMS/ffms2/"
 license=('MIT')
 options=('staticlibs' 'strip')
-depends=("${MINGW_PACKAGE_PREFIX}-ffmpeg")
+#depends=("${MINGW_PACKAGE_PREFIX}-ffmpeg")
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
 source=("$_realname"::"git+http://github.com/InitialForce/FFMS2#branch=master")
 sha1sums=('SKIP')

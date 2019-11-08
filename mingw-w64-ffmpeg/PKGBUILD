@@ -4,8 +4,8 @@
 
 _realname=ffmpeg
 pkgbase="mingw-w64-${_realname}"
-pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=4.1.3
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}" "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
+pkgver=4.2.1
 pkgrel=1
 pkgdesc="Complete and free Internet live audio and video broadcasting solution (mingw-w64)"
 arch=('any')
@@ -36,7 +36,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
              "${MINGW_PACKAGE_PREFIX}-ntldd-git"
              "${MINGW_PACKAGE_PREFIX}-nasm"
              "${MINGW_PACKAGE_PREFIX}-aom")
-source=("$_realname"::"git+https://github.com/InitialForce/FFmpeg#branch=release/4.1")
+source=("$_realname"::"git+https://github.com/InitialForce/FFmpeg#branch=release/4.2")
 sha1sums=('SKIP')
 
 prepare() {
@@ -112,14 +112,30 @@ package() {
   make DESTDIR="${pkgdir}" install
   mv "${pkgdir}${MINGW_PREFIX}"/bin/*.lib "${pkgdir}${MINGW_PREFIX}"/lib/
 
-  #pushd "${pkgdir}${MINGW_PREFIX}"/bin/
-  #ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep git-sdk-64 | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
-  #popd
-
-  #find ${pkgdir}${MINGW_PREFIX}/bin -type f -name "*.exe" -exec objcopy --subsystem console {} \;
-  rm -f ${pkgdir}${MINGW_PREFIX}/lib/*.def
-  rm -f ${pkgdir}${MINGW_PREFIX}/lib/*.lib
-  
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
   find ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig -name *.pc -exec sed -i -e"s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" {} \;
+}
+
+collect_deps() {
+  pushd "${pkgdir}${MINGW_PREFIX}"/bin/
+  ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep git-sdk-64 | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
+  popd
+}
+
+package_mingw-w64-x86_64-ffmpeg() {
+  package
+}
+
+package_mingw-w64-x86_64-ffmpeg-bundled() {
+  package
+  collect_deps
+}
+
+package_mingw-w64-i686-ffmpeg() {
+  package
+}
+
+package_mingw-w64-i686-ffmpeg-bundled() {
+  package
+  collect_deps
 }
