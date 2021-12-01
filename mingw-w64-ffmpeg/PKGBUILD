@@ -90,6 +90,13 @@ build() {
   CXXFLAGS+=" -DWIN32"
 
   local -a common_config
+
+  if check_option "debug" "n"; then
+      _extra_config+=("--disable-debug")
+  else
+      _extra_config+=("--enable-debug")
+  fi
+
   common_config+=(
     #--disable-debug
     --enable-debug
