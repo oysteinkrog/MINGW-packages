@@ -5,7 +5,8 @@
 
 _realname=ffmpeg
 pkgbase="mingw-w64-${_realname}"
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}" "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
 pkgver=4.4.1
 pkgrel=1
 pkgdesc="Complete and free Internet live audio and video broadcasting solution (mingw-w64)"
@@ -90,7 +91,8 @@ build() {
 
   local -a common_config
   common_config+=(
-    --disable-debug
+    #--disable-debug
+    --enable-debug
     --enable-amf
     --enable-dxva2
     --enable-d3d11va
