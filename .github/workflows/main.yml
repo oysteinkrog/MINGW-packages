@@ -15,11 +15,7 @@ jobs:
       matrix:
         include: [
           { msystem: MINGW64, toolchain: mingw-w64-x86_64-toolchain, can-fail: false, runner: windows-latest },
-          { msystem: MINGW32, toolchain: mingw-w64-i686-toolchain, can-fail: false, runner: windows-latest },
-          { msystem: UCRT64, toolchain: mingw-w64-ucrt-x86_64-toolchain, can-fail: false, runner: windows-latest },
-          { msystem: CLANG64, toolchain: mingw-w64-clang-x86_64-toolchain, can-fail: true, runner: windows-latest },
-          { msystem: CLANG32, toolchain: '', can-fail: true, runner: windows-latest },
-          # { msystem: CLANGARM64, toolchain: '', can-fail: true, runner: ['Windows', 'ARM64'] }
+          { msystem: CLANG64, toolchain: mingw-w64-clang-x86_64-toolchain, can-fail: false, runner: windows-latest },
         ]
     name: ${{ matrix.msystem }}
     runs-on: ${{ matrix.runner }}
