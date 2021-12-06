@@ -4,8 +4,10 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 _realname=ffmpeg
+_variants="-shared -shared-debug"
 pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-debug"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
 pkgver=4.4.1
 pkgrel=1
@@ -14,7 +16,7 @@ arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32')
 url="https://ffmpeg.org/"
 license=('LGPL')
-options=('staticlibs' 'strip')
+options=('strip')
 depends=("${MINGW_PACKAGE_PREFIX}-aom"
          "${MINGW_PACKAGE_PREFIX}-bzip2"
          "${MINGW_PACKAGE_PREFIX}-celt"
@@ -46,6 +48,9 @@ depends=("${MINGW_PACKAGE_PREFIX}-aom"
 
 makedepends=("${MINGW_PACKAGE_PREFIX}-dlfcn"
              "${MINGW_PACKAGE_PREFIX}-gcc"
+             $([[ ${MINGW_PACKAGE_PREFIX} == *-clang-* ]] || echo "${MINGW_PACKAGE_PREFIX}-clang")
+             $([[ ${MINGW_PACKAGE_PREFIX} == *-clang-* ]] || echo "${MINGW_PACKAGE_PREFIX}-compiler-rt")
+             $([[ ${MINGW_PACKAGE_PREFIX} == *-clang-* ]] || echo "${MINGW_PACKAGE_PREFIX}-libgc++")
              "${MINGW_PACKAGE_PREFIX}-pkg-config"
              "${MINGW_PACKAGE_PREFIX}-amf-headers"
              "${MINGW_PACKAGE_PREFIX}-ffnvcodec-headers"
@@ -56,6 +61,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-dlfcn"
              diffutils
              patch
              make
+             unzip
          )
 source=("${_realname}"::"git+https://github.com/InitialForce/FFmpeg#branch=stable/4.4"
         "pathtools.c"
@@ -88,9 +94,9 @@ build() {
   # Fix using SRT headers
   CFLAGS+=" -DWIN32"
   CXXFLAGS+=" -DWIN32"
+  LDFLAGS+=""
 
   local -a common_config
-
   if check_option "debug" "n"; then
       _extra_config+=("--disable-debug")
   else
@@ -98,18 +104,13 @@ build() {
   fi
 
   common_config+=(
-    #--disable-debug
-    --enable-debug
     --enable-amf
     --enable-dxva2
     --enable-d3d11va
     --enable-fontconfig
-    --enable-ffnvcodec \
-
-
+    --enable-ffnvcodec
     --enable-libcaca
     --enable-libcelt
-
     --enable-libmfx
     --enable-libmp3lame
     --enable-libopenjpeg
@@ -118,7 +119,6 @@ build() {
     --enable-libsrt
     --enable-libtheora
     --enable-libvorbis
-
     --enable-libvpx
     --enable-libwebp
     --enable-libxml2
@@ -135,13 +135,15 @@ build() {
     --build-suffix=-if
   )
 
-  for _variant in -static -shared; do
+  for _variant in $_variants; do
     [[ -d "${srcdir}/build-${MINGW_CHOST}${_variant}" ]] && rm -rf "${srcdir}/build-${MINGW_CHOST}${_variant}"
     mkdir -p "${srcdir}/build-${MINGW_CHOST}${_variant}" && cd "${srcdir}/build-${MINGW_CHOST}${_variant}"
-    if [[ ${_variant} == -static ]]; then
-      ENABLE_VARIANT=--enable-static
-    else
+    if [[ ${_variant} == -shared ]]; then
       ENABLE_VARIANT=--enable-shared
+    elif [[ ${_variant} == -shared-debug ]]; then
+      ENABLE_VARIANT="--enable-shared --enable-debug --disable-stripping"
+    elif [[ ${_variant} == -static ]]; then
+      ENABLE_VARIANT=--enable-static
     fi
     CC=${MINGW_PREFIX}/bin/gcc \
     CXX=${MINGW_PREFIX}/bin/g++ \
@@ -161,7 +163,7 @@ build() {
 }
 
 check() {
-  for _variant in -static -shared; do
+  for _variant in $_variants; do
     cd "${srcdir}/build-${MINGW_CHOST}${_variant}"
     # workaround for conflict with SDL main(), use it if you have SDL installed
     # make check CC_C="-c -Umain"
@@ -170,11 +172,6 @@ check() {
 }
 
 package_() {
-  for _variant in -static -shared; do
-    cd "${srcdir}/build-${MINGW_CHOST}${_variant}"
-    make DESTDIR="${pkgdir}" install
-  done
-  
   rm -f ${pkgdir}/${MINGW_PREFIX}/lib/*.def
   rm -f ${pkgdir}/${MINGW_PREFIX}/bin/*.lib
 
@@ -190,29 +187,61 @@ collect_deps() {
   popd
 }
 
+convert_symbols() {
+  wget "https://github.com/rainers/cv2pdb/releases/download/v0.49/cv2pdb-0.49.zip"
+  mkdir cv2pdb
+  unzip "cv2pdb-0.49.zip" -d cv2pdb
+  pushd "${pkgdir}${MINGW_PREFIX}"/bin/
+  for file in *.dll; do $OLDPWD/cv2pdb/cv2pdb.exe $file; done
+  popd
+  rm -rf cv2pdb*
+}
+
 package_mingw-w64-x86_64-ffmpeg() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
+  make DESTDIR="${pkgdir}" install
   package_
 }
 
+package_mingw-w64-x86_64-ffmpeg-debug() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
+  make DESTDIR="${pkgdir}" install
+  package_
+  convert_symbols
+}
+
 package_mingw-w64-x86_64-ffmpeg-bundled() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
+  make DESTDIR="${pkgdir}" install
   package_
   collect_deps
 }
 
 package_mingw-w64-clang-x86_64-ffmpeg() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
+  make DESTDIR="${pkgdir}" install
   package_
+}
+
+package_mingw-w64-clang-x86_64-ffmpeg-debug() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
+  make DESTDIR="${pkgdir}" install
+  package_
+  convert_symbols
 }
 
 package_mingw-w64-clang-x86_64-ffmpeg-bundled() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
+  make DESTDIR="${pkgdir}" install
   package_
   collect_deps
 }
 
-package_mingw-w64-i686-ffmpeg() {
-  package_
-}
+#package_mingw-w64-i686-ffmpeg() {
+  #package_
+#}
 
-package_mingw-w64-i686-ffmpeg-bundled() {
-  package_
-  collect_deps
-}
+#package_mingw-w64-i686-ffmpeg-bundled() {
+  #package_
+  #collect_deps
+#}
