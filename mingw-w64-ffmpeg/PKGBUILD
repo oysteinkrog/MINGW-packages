@@ -139,7 +139,7 @@ build() {
     if [[ ${_variant} == -shared ]]; then
       ENABLE_VARIANT=--enable-shared
     elif [[ ${_variant} == -shared-debug ]]; then
-      ENABLE_VARIANT="--enable-shared --enable-debug --disable-stripping"
+      ENABLE_VARIANT="--enable-shared --disable-stripping --disable-optimizations --extra-cflags=-Og --extra-cflags=-fno-omit-frame-pointer --enable-debug=3 --extra-cflags=-fno-inline"
     elif [[ ${_variant} == -static ]]; then
       ENABLE_VARIANT=--enable-static
     fi
