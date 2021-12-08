@@ -65,11 +65,29 @@ package_mingw-w64-x86_64-ffms2-bundled() {
   collect_deps
 }
 
+package_mingw-w64-clang-x86_64-ffms2() {
+  package
+}
+
+package_mingw-w64-clang-x86_64-ffms2-bundled() {
+  package
+  collect_deps
+}
+
 package_mingw-w64-i686-ffms2() {
   package
 }
 
 package_mingw-w64-i686-ffms2-bundled() {
+  package
+  collect_deps
+}
+
+package_mingw-w64-clang-i686-ffms2() {
+  package
+}
+
+package_mingw-w64-clang-i686-ffms2-bundled() {
   package
   collect_deps
 }
