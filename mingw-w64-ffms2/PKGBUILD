@@ -43,7 +43,7 @@ build() {
   make
 }
 
-package() {
+package_() {
   cd "${srcdir}/build-${MINGW_CHOST}"
   make DESTDIR="${pkgdir}" install
 
@@ -57,37 +57,37 @@ collect_deps() {
 }
 
 package_mingw-w64-x86_64-ffms2() {
-  package
+  package_
 }
 
 package_mingw-w64-x86_64-ffms2-bundled() {
-  package
+  package_
   collect_deps
 }
 
 package_mingw-w64-clang-x86_64-ffms2() {
-  package
+  package_
 }
 
 package_mingw-w64-clang-x86_64-ffms2-bundled() {
-  package
+  package_
   collect_deps
 }
 
 package_mingw-w64-i686-ffms2() {
-  package
+  package_
 }
 
 package_mingw-w64-i686-ffms2-bundled() {
-  package
+  package_
   collect_deps
 }
 
 package_mingw-w64-clang-i686-ffms2() {
-  package
+  package_
 }
 
 package_mingw-w64-clang-i686-ffms2-bundled() {
-  package
+  package_
   collect_deps
 }
