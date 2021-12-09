@@ -1,2 +1,2 @@
-mingw-w64-clang-x86_64-ffmpeg-bundled
-mingw-w64-x86_64-ffmpeg-bundled
+mingw-w64-clang-x86_64-ffmpeg-if-bundled
+mingw-w64-x86_64-ffmpeg-if-bundled

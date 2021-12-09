@@ -3,7 +3,7 @@
 # Contributor: wirx6 <wirx654@gmail.com>
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
-_realname=ffmpeg
+_realname=ffmpeg-if
 _variants="-shared -shared-debug"
 pkgbase="mingw-w64-${_realname}"
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
@@ -195,40 +195,40 @@ convert_symbols() {
   rm -rf cv2pdb*
 }
 
-package_mingw-w64-x86_64-ffmpeg() {
+package_mingw-w64-x86_64-ffmpeg-if() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared"
   make DESTDIR="${pkgdir}" install
   package_
 }
 
-package_mingw-w64-x86_64-ffmpeg-debug() {
+package_mingw-w64-x86_64-ffmpeg-if-debug() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
   make DESTDIR="${pkgdir}" install
   package_
   convert_symbols
 }
 
-package_mingw-w64-x86_64-ffmpeg-bundled() {
+package_mingw-w64-x86_64-ffmpeg-if-bundled() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared"
   make DESTDIR="${pkgdir}" install
   package_
   collect_deps
 }
 
-package_mingw-w64-clang-x86_64-ffmpeg() {
+package_mingw-w64-clang-x86_64-ffmpeg-if() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared"
   make DESTDIR="${pkgdir}" install
   package_
 }
 
-package_mingw-w64-clang-x86_64-ffmpeg-debug() {
+package_mingw-w64-clang-x86_64-ffmpeg-if-debug() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
   make DESTDIR="${pkgdir}" install
   package_
   convert_symbols
 }
 
-package_mingw-w64-clang-x86_64-ffmpeg-bundled() {
+package_mingw-w64-clang-x86_64-ffmpeg-if-bundled() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared"
   make DESTDIR="${pkgdir}" install
   package_
