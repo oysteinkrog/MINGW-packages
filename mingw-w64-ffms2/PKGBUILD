@@ -1,26 +1,32 @@
 # Maintainer: Alexey Pavlov <Alexpux@gmail.com>
 
 _realname=ffms2
+_variants="-shared -shared-debug"
+#_variants="-shared-debug"
 pkgbase=mingw-w64-${_realname}
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}" "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
+pkgname=(
+    "${MINGW_PACKAGE_PREFIX}-${_realname}"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-debug"
+    "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled"
+)
 pkgver=2.40
 pkgrel=1
 pkgdesc="A cross-platform wrapper library around libav/FFmpeg (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32')
-url="https://github.com/FFMS/ffms2/"
+url="https://github.com/InitialForce/ffms2/"
 license=('MIT')
 options=('staticlibs' 'strip')
-depends=("${MINGW_PACKAGE_PREFIX}-ffmpeg")
+depends=("${MINGW_PACKAGE_PREFIX}-ffmpeg-if")
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
-source=("$_realname"::"git+http://github.com/InitialForce/FFMS2#branch=master"
+source=("${_realname}"::"git+https://github.com/InitialForce/FFMS2#branch=master"
         "0001-ffmsindex-add-municode-ldflag.patch")
 
 sha256sums=('SKIP'
             '59e2150127dbdf2645bab6cbbd8842cc58dd33ce12238e76d1b2916d9d051f56')
 
 prepare() {
-  cd "${_realname}"
+  cd "${srcdir}/${_realname}"
 
   patch -Np1 -i "${srcdir}/0001-ffmsindex-add-municode-ldflag.patch"
 
@@ -29,22 +35,31 @@ prepare() {
 }
 
 build() {
-  [[ -d "${srcdir}/build-${MINGW_CHOST}" ]] && rm -rf "${srcdir}/build-${MINGW_CHOST}"
-  mkdir -p "${srcdir}/build-${MINGW_CHOST}" && cd "${srcdir}/build-${MINGW_CHOST}"
+  for _variant in $_variants; do
+    [[ -d "${srcdir}/build-${MINGW_CHOST}${_variant}" ]] && rm -rf "${srcdir}/build-${MINGW_CHOST}${_variant}"
+    mkdir -p "${srcdir}/build-${MINGW_CHOST}${_variant}" && cd "${srcdir}/build-${MINGW_CHOST}${_variant}"
+    if [[ ${_variant} == -shared ]]; then
+      ENABLE_VARIANT="--enable-shared --disable-static"
+    elif [[ ${_variant} == -shared-debug ]]; then
+      ENABLE_VARIANT="--enable-shared --disable-static --enable-debug=yes"
+    elif [[ ${_variant} == -static ]]; then
+      ENABLE_VARIANT="--enable-static --disable-shared"
+      fi
 
-  ../${_realname}/configure \
-    --prefix=${MINGW_PREFIX} \
-    --host=${MINGW_CHOST} \
-    --build=${CARCH%%-*} \
-    --disable-debug \
-    --disable-static \
-    --enable-shared
 
-  make
+    CFLAGS+=" -O0 -g3 -fno-inline -fno-omit-frame-pointer -fvar-tracking -fvar-tracking-assignments" \
+    CXXFLAGS+=" -O0 -g3 -fno-inline -fno-omit-frame-pointer -fvar-tracking -fvar-tracking-assignments" \
+    ../${_realname}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --build=${CARCH%%-*} \
+      ${ENABLE_VARIANT}
+
+    make
+  done
 }
 
 package_() {
-  cd "${srcdir}/build-${MINGW_CHOST}"
   make DESTDIR="${pkgdir}" install
 
   install -Dm644 "${srcdir}/${_realname}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
@@ -52,42 +67,49 @@ package_() {
 
 collect_deps() {
   pushd "${pkgdir}${MINGW_PREFIX}"/bin/
-  ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep git-sdk-64 | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
+  ntldd -R *.dll *.exe |grep -v WINDOWS | grep -v "not found" | grep ${MINGW_ARCH} | column -t | awk '{print $3}' | sed 's|\\|/|g' | xargs cygpath | xargs -I{} cp -u {} .
   popd
 }
 
+convert_symbols() {
+    wget "https://github.com/rainers/cv2pdb/releases/download/v0.49/cv2pdb-0.49.zip"
+    unzip "cv2pdb-0.49.zip" -d cv2pdb
+    pushd "${pkgdir}${MINGW_PREFIX}"/bin/
+    for file in *.dll; do $OLDPWD/cv2pdb/cv2pdb.exe $file; done
+    popd
+    rm -rf cv2pdb*
+}
+
 package_mingw-w64-x86_64-ffms2() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
   package_
 }
 
+package_mingw-w64-x86_64-ffms2-debug() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
+  package_
+  convert_symbols
+}
+
 package_mingw-w64-x86_64-ffms2-bundled() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
   package_
   collect_deps
 }
 
 package_mingw-w64-clang-x86_64-ffms2() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared"
   package_
+}
+
+package_mingw-w64-clang-x86_64-ffms2-debug() {
+  cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
+  package_
+  convert_symbols
 }
 
 package_mingw-w64-clang-x86_64-ffms2-bundled() {
-  package_
-  collect_deps
-}
-
-package_mingw-w64-i686-ffms2() {
-  package_
-}
-
-package_mingw-w64-i686-ffms2-bundled() {
-  package_
-  collect_deps
-}
-
-package_mingw-w64-clang-i686-ffms2() {
-  package_
-}
-
-package_mingw-w64-clang-i686-ffms2-bundled() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
   package_
   collect_deps
 }
