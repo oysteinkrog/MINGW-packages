@@ -50,7 +50,7 @@ for package in "${packages[@]}"; do
         for pkg in *.pkg.tar.*; do
             pkgname="$(echo "$pkg" | rev | cut -d- -f4- | rev)"
             echo "::group::[install] ${pkgname}"
-            grep -qFx "${package}" "$(dirname "$0")/ci-dont-install-list.txt" || pacman --noprogressbar --upgrade --noconfirm $pkg
+            grep -qFx "${package}" "$(dirname "$0")/ci-dont-install-list.txt" || pacman --noprogressbar --upgrade --noconfirm --overwrite \* $pkg
             echo "::endgroup::"
 
             echo "::group::[meta-diff] ${pkgname}"

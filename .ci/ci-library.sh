@@ -85,7 +85,7 @@ list_packages() {
 }
 
 install_packages() {
-    pacman --noprogressbar --upgrade --noconfirm *.pkg.tar.*
+    pacman --noprogressbar --upgrade --noconfirm --overwrite \* *.pkg.tar.*
 }
 
 # Recipe quality
