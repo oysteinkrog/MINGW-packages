@@ -4,11 +4,11 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 _realname=ffmpeg-if
-_variants="-shared -shared-debug"
+_variants="-shared-debug"
 pkgbase="mingw-w64-${_realname}"
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgname=(
          "${MINGW_PACKAGE_PREFIX}-${_realname}-debug"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-bundled")
+     )
 pkgver=4.4.1
 pkgrel=1
 pkgdesc="Complete and free Internet live audio and video broadcasting solution (mingw-w64)"
@@ -90,7 +90,7 @@ prepare() {
 
 build() {
   # Fix using SRT headers
-  CFLAGS+=" -DWIN32"
+  CFLAGS+=" -DWIN32 -g3"
   CXXFLAGS+=" -DWIN32"
   LDFLAGS+=""
 
@@ -139,18 +139,20 @@ build() {
     if [[ ${_variant} == -shared ]]; then
       ENABLE_VARIANT=--enable-shared
     elif [[ ${_variant} == -shared-debug ]]; then
-      ENABLE_VARIANT="--enable-shared --disable-stripping --disable-optimizations --extra-cflags=-Og --extra-cflags=-fno-omit-frame-pointer --enable-debug=3 --extra-cflags=-fno-inline"
+      ENABLE_VARIANT="--enable-shared --disable-stripping --disable-optimizations --extra-cflags=-Og --extra-cflags=-fno-omit-frame-pointer --enable-debug=codeview --extra-cflags=-fno-inline"
     elif [[ ${_variant} == -static ]]; then
       ENABLE_VARIANT=--enable-static
     fi
-    CC=${MINGW_PREFIX}/bin/gcc \
-    CXX=${MINGW_PREFIX}/bin/g++ \
+    CC=${MINGW_PREFIX}/bin/clang \
+    CXX=${MINGW_PREFIX}/bin/clang \
     ../${_realname}/configure \
       --prefix=${MINGW_PREFIX} \
       --target-os=mingw32 \
       --arch=${CARCH%%-*} \
       "${common_config[@]}" \
       --logfile=config.log \
+      --cc=clang \
+      --cxx=clang \
       ${ENABLE_VARIANT} ||
       {
         cat config.log
@@ -205,7 +207,7 @@ package_mingw-w64-x86_64-ffmpeg-if-debug() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
   make DESTDIR="${pkgdir}" install
   package_
-  convert_symbols
+  #convert_symbols
 }
 
 package_mingw-w64-x86_64-ffmpeg-if-bundled() {
@@ -225,7 +227,7 @@ package_mingw-w64-clang-x86_64-ffmpeg-if-debug() {
   cd "${srcdir}/build-${MINGW_CHOST}-shared-debug"
   make DESTDIR="${pkgdir}" install
   package_
-  convert_symbols
+  #convert_symbols
 }
 
 package_mingw-w64-clang-x86_64-ffmpeg-if-bundled() {
