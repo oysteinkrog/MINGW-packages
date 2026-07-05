@@ -9,6 +9,7 @@ on:
     branches: [ 'release/*', 'master', 'main' ]
   pull_request:
     branches: [ 'release/*', 'master', 'main' ]
+  workflow_dispatch:
 
 jobs:
   build-ffmpeg:
@@ -84,6 +85,23 @@ jobs:
         run: |
           cd mingw-w64-ffmpeg/artifacts
           sha256sum *
+
+  # Aggregate status check: green iff all 6 build-ffmpeg matrix legs succeeded,
+  # independent of build-ffms2 (FFMS2 has known-broken legs tracked separately).
+  # A plain `needs: build-ffmpeg` job is SKIPPED (reads neutral, not red) when
+  # the dependency fails, so this job runs unconditionally and fails explicitly.
+  ffmpeg-green:
+    name: ffmpeg-green
+    needs: build-ffmpeg
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all FFmpeg matrix jobs to have succeeded
+        run: |
+          if [ "${{ needs.build-ffmpeg.result }}" != "success" ]; then
+            echo "build-ffmpeg result: ${{ needs.build-ffmpeg.result }}"
+            exit 1
+          fi
 
   build-ffms2:
     needs: build-ffmpeg
